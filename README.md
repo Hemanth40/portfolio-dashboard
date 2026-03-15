@@ -24,13 +24,13 @@ The idea is simple — Priyanshu already knows what he bought and at what price.
 
 Make sure you have Node.js 18 or above installed.
 ```bash
-git clone https://github.com/your-username/portfolio-dashboard.git
+git clone https://github.com/Hemanth40/portfolio-dashboard.git 
 cd portfolio-dashboard
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000 in your browser.
+Open https://portfolio-dashboard-fawn-sigma.vercel.app/in your browser.
 
 ## How the data works
 
