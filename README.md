@@ -30,7 +30,7 @@ npm install
 npm run dev
 ```
 
-Open https://portfolio-dashboard-fawn-sigma.vercel.app/in your browser.
+Open https://portfolio-dashboard-fawn-sigma.vercel.app/ in your browser.
 
 ## How the data works
 
