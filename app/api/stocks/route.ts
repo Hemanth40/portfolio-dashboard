@@ -1,5 +1,21 @@
 import { NextResponse } from 'next/server'
 
+// some stocks have different ticker names on Google Finance vs Yahoo Finance
+const googleTickerMap: Record<string, string> = {
+  'LTIM':        'LTIMindtree',
+  'HAPPSTMNDS':  'HAPPSTMNDS',
+  'BLSE':        'BLSE',
+  'SAVANIFINL':  'SAVANIFINL',
+  'BAJAJHFL':    'BAJAJHOUSINGFIN',
+  'KPIGREEN':    'KPIGREEN',
+  'HARIOMPIPE':  'HARIOMPIPES',
+  'FINEORG':     'FINEORGANICS',
+  'DEEPAKNTR':   'DEEPAKNITRITE',
+  'TATACONSUM':  'TATACONSUMER',
+  'PIDILITIND':  'PIDILITE',
+  'EASEMYTRIP':  'EASEMYTRIP',
+}
+
 async function getYahooData(ticker: string) {
   try {
     const res = await fetch(
@@ -23,7 +39,8 @@ async function getYahooData(ticker: string) {
 
 async function getGoogleFinanceData(ticker: string) {
   try {
-    const symbol = ticker.replace('.NS', '')
+    const rawSymbol = ticker.replace('.NS', '')
+    const symbol = googleTickerMap[rawSymbol] ?? rawSymbol
     const url = `https://www.google.com/finance/quote/${symbol}:NSE`
 
     const res = await fetch(url, {
@@ -35,7 +52,7 @@ async function getGoogleFinanceData(ticker: string) {
       next: { revalidate: 60 }
     })
 
-    if (!res.ok) return { peRatio: null, latestEarnings: null }
+    if (!res.ok) return { peRatio: null }
 
     const raw = await res.text()
     const html = raw
@@ -45,7 +62,6 @@ async function getGoogleFinanceData(ticker: string) {
 
     let peRatio: number | null = null
 
-    // P/E ratio is in div.P6K39c right after the P/E ratio label
     const peIndex = html.indexOf('P/E ratio')
     if (peIndex !== -1) {
       const chunk = html.slice(peIndex, peIndex + 300)
@@ -96,10 +112,10 @@ export async function GET(request: Request) {
           getCachedGoogleData(ticker),
         ])
 
-        const cmp = yahooData.cmp
-        const peRatio = googleData.peRatio
+        const cmp      = yahooData.cmp
+        const peRatio  = googleData.peRatio
 
-        // EPS = CMP / P/E ratio — standard formula
+        // EPS = CMP / P/E ratio
         const latestEarnings = cmp !== null && peRatio !== null
           ? parseFloat((cmp / peRatio).toFixed(2))
           : null
